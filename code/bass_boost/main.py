@@ -128,10 +128,23 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
         else:
             audio_out = step
         # end for
+        assert_type_or_raise(audio_out, AudioSegment)
+        assert isinstance(audio_out, AudioSegment)
         bot.bot.send_chat_action(chat_id, "record_audio")
     # end def
     bot.bot.send_chat_action(chat_id, "upload_audio")
-    audio_out.export(fake_file_out, format="mp3", tags={"comment": "TEST°!!!", "title":"test title"})
+    bot_username = "@{bot}".format(bot=bot.username)
+    audio_out.export(fake_file_out, format="mp3", tags={
+        "title":audio.title or '"Title"',
+        "artist": audio.performer or '"Artist"',
+        "composer": bot_username,
+        "service_name": bot_username,
+        "comment": "TEST°!!!",
+        "genre": "BOOSTED BASS",
+        "encoder": "Horseapples 1.2 - https://t.me/{bot} (littlepip is best pony/)",
+        "encoded_by": "https://t.me/{bot}".format(bot=bot.username)
+
+    })
     file_out = InputFile(
         fake_file_out.getvalue(), file_mime="audio/mpeg",
         file_name="bass boosted by @{bot}.mp3".format(bot=bot.username),

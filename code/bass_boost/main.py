@@ -128,23 +128,27 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
         else:
             audio_out = step
         # end for
-        assert_type_or_raise(audio_out, AudioSegment)
-        assert isinstance(audio_out, AudioSegment)
         bot.bot.send_chat_action(chat_id, "record_audio")
     # end def
+    assert_type_or_raise(audio_out, AudioSegment)
+    assert isinstance(audio_out, AudioSegment)
     bot.bot.send_chat_action(chat_id, "upload_audio")
-    bot_username = "@{bot}".format(bot=bot.username)
-    audio_out.export(fake_file_out, format="mp3", tags={
-        "title":audio.title or '"Title"',
-        "artist": audio.performer or '"Artist"',
-        "composer": bot_username,
-        "service_name": bot_username,
+    bot_link = "https://t.me/{bot}".format(bot=bot.username)
+    tags = {
+        "composer": bot_link,
+        "service_name": bot_link,
         "comment": "TEST°!!!",
         "genre": "BOOSTED BASS",
-        "encoder": "Horseapples 1.2 - https://t.me/{bot} (littlepip is best pony/)",
-        "encoded_by": "https://t.me/{bot}".format(bot=bot.username)
-
-    })
+        "encoder": "Horseapples 1.2 - {bot_link} (littlepip is best pony/)".format(bot_link=bot_link),
+        "encoded_by": bot_link
+    }
+    if audio.title:
+        tags["title"] = audio.title
+    # end if
+    if audio.artist:
+        tags["artist"] = audio.performer
+    # end if
+    audio_out.export(fake_file_out, format="mp3",tags=tags)
     file_out = InputFile(
         fake_file_out.getvalue(), file_mime="audio/mpeg",
         file_name="bass boosted by @{bot}.mp3".format(bot=bot.username),

@@ -8,6 +8,7 @@ from pytgbot.api_types.receivable.media import Audio
 from pytgbot.api_types.receivable.peer import Chat, User
 from pytgbot.api_types.receivable.updates import Message, Update
 from pytgbot.api_types.sendable.files import InputFile
+from pytgbot.exceptions import TgApiServerException
 from teleflask.messages import HTMLMessage
 
 from bass_boost.boost import boost
@@ -116,9 +117,13 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
     for step in boost(audio_in):
         if isinstance(step, int):
             text = getattr(ln, "progress" + str(step+1))
-            bot.bot.edit_message_text(
-                text, chat_id, progress.message_id, disable_web_page_preview=True
-            )
+            try:
+                bot.bot.edit_message_text(
+                    text, chat_id, progress.message_id, disable_web_page_preview=True
+                )
+            except TgApiServerException:
+                logger.exception("Editing status message failed")
+            # end try
         # end if
         else:
             audio_out = step

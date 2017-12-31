@@ -11,7 +11,7 @@ class Lang(LBase):
     progress0 = "Läd Datei herunter"
     progress1 = "Lädt Audio"
     progress2 = "Zerteilung des Tracks"
-    progress3 = "Berechnung des durchschnittlich benötigten Bass"
+    progress3 = "Berechnung des durchschnittlich benötigten Basses"
     progress4 = "Berechne Bassverstärkung"
     progress5 = "Berechne stärkere Bassverstärkung"
     progress6 = "Extrahiere zu verstärkende Bereiche"

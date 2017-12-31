@@ -132,7 +132,10 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
     # end def
     bot.bot.send_chat_action(chat_id, "upload_audio")
     audio_out.export(fake_file_out, format="mp3", tags={"comment": "TEST°!!!", "title":"test title"})
-    file_out = InputFile(fake_file_out.getvalue(), file_name="moar bass.mp3", file_mime="audio/mpeg")
+    file_out = InputFile(
+        fake_file_out.getvalue(), file_mime="audio/mpeg",
+        file_name="bass boosted by @{bot}.mp3".format(bot=bot.username),
+    )
     bot.bot.send_chat_action(chat_id, "upload_audio")
     caption = ln.caption.format(bot=bot.username)
     bot.bot.send_audio(

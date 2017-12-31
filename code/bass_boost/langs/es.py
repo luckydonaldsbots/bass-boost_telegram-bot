@@ -15,3 +15,8 @@ class Lang(LBase):
     progress5 = "calculando una mayor potenciación de los graves"
     progress6 = "extrayendo regiones para potenciar"
     progress7 = "aplicando potenciación de graves a la pista de audio original"
+    capslock_number_1 = "UNO"
+    capslock_number_11 = "ONCE"
+    capslock_number_111 = "CIENTOONCE"
+    generic_error = "Ha ocurrido un error. Por favor inténtalo de nuevo cuando el bug se haya corregido."
+    task_scheduled = "Tu pista de audio se ha añadido a la cola de aumento de graves."

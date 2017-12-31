@@ -105,14 +105,6 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
         disable_notification=False, reply_to_message_id=message_id
     )
     try:
-        logger.debug("Downloading file: {id}".format(id=file_id))
-        file_in = bot.bot.get_file(file_id)
-        url = bot.bot.get_download_url(file_in)
-        logger.debug("Downloading file: {url}".format(url=url))
-        r = requests.get(url, stream=True)
-        logger.debug("Downloaded file.")
-        fake_file_in = BytesIO(r.content)
-        fake_file_out = BytesIO()
         logger.debug("Mime is {mime}".format(mime=audio.mime_type))
         if audio.mime_type not in AUDIO_FORMATS:
             logger.debug("Mime is wrong")
@@ -121,6 +113,15 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
             )
             return
         # end if
+
+        logger.debug("Downloading file: {id}".format(id=file_id))
+        file_in = bot.bot.get_file(file_id)
+        url = bot.bot.get_download_url(file_in)
+        logger.debug("Downloading file: {url}".format(url=url))
+        r = requests.get(url, stream=True)
+        logger.debug("Downloaded file.")
+        fake_file_in = BytesIO(r.content)
+        fake_file_out = BytesIO()
         audio_format = AUDIO_FORMATS[audio.mime_type]
         logger.debug("Format is {format}".format(format=audio_format))
         audio_in = AudioSegment.from_file(fake_file_in, format=audio_format)
@@ -159,7 +160,7 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
         if audio.title:
             tags["title"] = audio.title
         # end if
-        if audio.artist:
+        if audio.performer:
             tags["artist"] = audio.performer
         # end if
         audio_out.export(fake_file_out, format="mp3",tags=tags)
@@ -179,6 +180,7 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
         logger.debug("deleting status message")
         bot.bot.delete_message(chat_id, progress.message_id)
     except Exception as e:
+        logger.exception("Got Exeption instead of bass!")
         bot.bot.edit_message_text(
             ln.generic_error, chat_id, progress.message_id, disable_web_page_preview=True
         )

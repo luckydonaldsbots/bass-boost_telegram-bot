@@ -1,0 +1,1 @@
+from bass_boost.main import app

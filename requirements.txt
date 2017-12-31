@@ -1,0 +1,12 @@
+## Web ##
+uwsgi
+flask
+
+## Bot ##
+#teleflask==0.0.8  # yeah, telegram!
+-e git://github.com/luckydonald/teleflask.git@9d954fd263a3179ae346f35242f2dd46edb2b647#egg=teleflask  # 2017-07-03(3) version with channel `reply_to` fix. before: fixed @command, DocumentMessage, fixed decorators, and @on_message including the update
+
+## Diversa ##
+requests
+pydub
+numpy

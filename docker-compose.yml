@@ -1,0 +1,13 @@
+version: '2'
+services:
+  bot:
+    build:
+      context: ./
+      args:
+        FOLDER: ""
+    environment:
+      TG_API_KEY:  # API key of the bot
+      SENTRY_DSN:
+      URL_PATH:
+      URL_HOSTNAME:
+      HEALTHCHECK_URL: "/test"

@@ -71,12 +71,17 @@ def msg_audio(update, msg):
     assert isinstance(msg, Message)
     assert isinstance(msg.audio, Audio)
     assert isinstance(msg.from_peer, User)
+    ln = l(msg.from_peer.language_code)
+    progress = bot.bot.send_message(
+        chat_id=msg.chat.id, text=ln.task_scheduled, disable_web_page_preview=True,
+        disable_notification=False, reply_to_message_id=msg.message_id,
+    )
     process_audio.delay(
         api_key=API_KEY,
-        audio=msg.audio.to_array(),
+        progress_msg_id=progress.message_id,
         chat_id=msg.chat.id,
         message_id=msg.message_id,
-        file_id=msg.audio.file_id,
+        audio=msg.audio.to_array(),
         language_code=msg.from_peer.language_code
     )
 # end def

@@ -26,7 +26,7 @@ AUDIO_FORMATS = {
 
 
 @celery.task(ignore_result=True)
-def process_audio(api_key, audio, chat_id, message_id, file_id, language_code):
+def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language_code):
     assert isinstance(audio, dict)
     audio = Audio.from_array(audio)
     assert isinstance(audio, Audio)
@@ -34,14 +34,10 @@ def process_audio(api_key, audio, chat_id, message_id, file_id, language_code):
     bot.username = bot.get_me().username
     assert isinstance(bot, Bot)
     ln = l(language_code)
-    progress = bot.send_message(
-        chat_id=chat_id, text=ln.progress0, disable_web_page_preview=True,
-        disable_notification=False, reply_to_message_id=message_id
-    )
 
     #if audio.duration > 210 or audio.file_size > 7000000:  # 3.5 minutes
     #    bot.edit_message_text(
-    #        ln.file_too_big, chat_id, progress.message_id, disable_web_page_preview=True
+    #        ln.file_too_big, chat_id, progress_msg_id, disable_web_page_preview=True
     #    )
     #    return
     ## end if
@@ -51,13 +47,13 @@ def process_audio(api_key, audio, chat_id, message_id, file_id, language_code):
         if audio.mime_type not in AUDIO_FORMATS:
             logger.debug("Mime is wrong")
             bot.edit_message_text(
-                ln.format_unsupported, chat_id, progress.message_id, disable_web_page_preview=True
+                ln.format_unsupported, chat_id, progress_msg_id, disable_web_page_preview=True
             )
             return
         # end if
 
-        logger.debug("Downloading file: {id}".format(id=file_id))
-        file_in = bot.get_file(file_id)
+        logger.debug("Downloading file: {id}".format(id=audio.file_id))
+        file_in = bot.get_file(audio.file_id)
         url = bot.get_download_url(file_in)
         logger.debug("Downloading file: {url}".format(url=url))
         r = requests.get(url, stream=True)
@@ -75,7 +71,7 @@ def process_audio(api_key, audio, chat_id, message_id, file_id, language_code):
                 logger.debug("Progress {step}: {text}".format(step=step, text=text))
                 try:
                     bot.edit_message_text(
-                        text, chat_id, progress.message_id, disable_web_page_preview=True
+                        text, chat_id, progress_msg_idprogress_msg_id, disable_web_page_preview=True
                     )
                 except TgApiServerException:
                     logger.exception("Editing status message failed")
@@ -120,11 +116,11 @@ def process_audio(api_key, audio, chat_id, message_id, file_id, language_code):
             disable_notification=False, reply_to_message_id=message_id
         )
         logger.debug("deleting status message")
-        bot.delete_message(chat_id, progress.message_id)
+        bot.delete_message(chat_id, progress_msg_id)
     except Exception as e:
         logger.exception("Got Exeption instead of bass!")
         bot.edit_message_text(
-            ln.generic_error, chat_id, progress.message_id, disable_web_page_preview=True
+            ln.generic_error, chat_id, progress_msg_id, disable_web_page_preview=True
         )
     # end try
 # end def

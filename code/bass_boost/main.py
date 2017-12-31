@@ -2,23 +2,18 @@
 import requests
 from flask import Flask, url_for
 from luckydonaldUtils.logger import logging
-from pydub import AudioSegment
 from pytgbot import Bot
 from pytgbot.api_types.receivable.media import Audio
-from pytgbot.api_types.receivable.peer import Chat, User
-from pytgbot.api_types.receivable.updates import Message, Update
-from pytgbot.api_types.sendable.files import InputFile
-from pytgbot.exceptions import TgApiServerException
+from pytgbot.api_types.receivable.peer import User
+from pytgbot.api_types.receivable.updates import Message
 from teleflask.messages import HTMLMessage
 
-from bass_boost.boost import boost
 from .langs import l
 from .secrets import API_KEY, URL_HOSTNAME, URL_PATH
 from .after_response import load_teardown_after_this_request
+from .celery.process_audio import process_audio
 from luckydonaldUtils.exceptions import assert_type_or_raise
 import re
-from html import escape
-from io import BytesIO
 
 POSSIBLE_CHAT_TYPES = ("supergroup", "group", "channel")
 SEND_BACKOFF = 5
@@ -51,11 +46,6 @@ def url_root():
 # end def
 
 
-@app.route("/test", methods=["GET","POST"])
-def url_test():
-    return "Success", 200
-# end def
-
 @app.route("/healthcheck")
 def url_healthcheck():
     return '[ OK ]', 200
@@ -76,128 +66,17 @@ def cmd_start(update, text):
 # end def
 
 
-AUDIO_FORMATS = {
-    "audio/mp3": "mp3",
-    "audio/mpeg3": "mp3",
-    "audio/x-mpeg-3": "mp3",
-    "audio/mpeg": "mp3",
-}
-
-from .langs import l
 @bot.on_message("audio")
 def msg_audio(update, msg):
     assert isinstance(msg, Message)
     assert isinstance(msg.audio, Audio)
     assert isinstance(msg.from_peer, User)
-    process_audio(
-        audio=msg.audio,
+    process_audio.delay(
+        api_key=API_KEY,
+        audio=msg.audio.to_array(),
         chat_id=msg.chat.id,
         message_id=msg.message_id,
         file_id=msg.audio.file_id,
         language_code=msg.from_peer.language_code
     )
 # end def
-
-def process_audio(audio, chat_id, message_id, file_id, language_code):
-    assert isinstance(audio, Audio)
-    assert isinstance(bot.bot, Bot)
-    ln = l(language_code)
-    progress = bot.bot.send_message(
-        chat_id=chat_id, text=ln.progress0, disable_web_page_preview=True,
-        disable_notification=False, reply_to_message_id=message_id
-    )
-    if audio.duration > 600 or audio.file_size > 15000000: # 10 minutes
-        bot.bot.edit_message_text(
-            ln.file_too_big, chat_id, progress.message_id, disable_web_page_preview=True
-        )
-        return
-    # end if
-
-    @app.teardown_after_this_request
-    def process_audio_inner(*args, **kwargs):
-        logger.debug("Executing stuff. args: {args!r}, kwargs: {kwargs!r}".format(args=args, kwargs=kwargs))
-        try:
-            logger.debug("Mime is {mime}".format(mime=audio.mime_type))
-            if audio.mime_type not in AUDIO_FORMATS:
-                logger.debug("Mime is wrong")
-                bot.bot.edit_message_text(
-                    ln.format_unsupported, chat_id, progress.message_id, disable_web_page_preview=True
-                )
-                return
-            # end if
-
-            logger.debug("Downloading file: {id}".format(id=file_id))
-            file_in = bot.bot.get_file(file_id)
-            url = bot.bot.get_download_url(file_in)
-            logger.debug("Downloading file: {url}".format(url=url))
-            r = requests.get(url, stream=True)
-            logger.debug("Downloaded file.")
-            fake_file_in = BytesIO(r.content)
-            fake_file_out = BytesIO()
-            audio_format = AUDIO_FORMATS[audio.mime_type]
-            logger.debug("Format is {format}".format(format=audio_format))
-            audio_in = AudioSegment.from_file(fake_file_in, format=audio_format)
-            audio_out = None
-            logger.debug("Calling boost()...")
-            for step in boost(audio_in):
-                if isinstance(step, int):
-                    text = getattr(ln, "progress" + str(step))
-                    logger.debug("Progress {step}: {text}".format(step=step, text=text))
-                    try:
-                        bot.bot.edit_message_text(
-                            text, chat_id, progress.message_id, disable_web_page_preview=True
-                        )
-                    except TgApiServerException:
-                        logger.exception("Editing status message failed")
-                    # end try
-                # end if
-                else:
-                    audio_out = step
-                # end for
-                bot.bot.send_chat_action(chat_id, "record_audio")
-            # end def
-            logger.debug("Done with boost()...")
-            assert_type_or_raise(audio_out, AudioSegment)
-            assert isinstance(audio_out, AudioSegment)
-            bot.bot.send_chat_action(chat_id, "upload_audio")
-            bot_link = "https://t.me/{bot}".format(bot=bot.username)
-            tags = {
-                "composer": bot_link,
-                "service_name": bot_link,
-                "comment": "TEST°!!!",
-                "genre": "BOOSTED BASS",
-                "encoder": "Horseapples 1.2 - {bot_link} (littlepip is best pony/)".format(bot_link=bot_link),
-                "encoded_by": bot_link
-            }
-            if audio.title:
-                tags["title"] = audio.title
-            # end if
-            if audio.performer:
-                tags["artist"] = audio.performer
-            # end if
-            audio_out.export(fake_file_out, format="mp3",tags=tags)
-            file_out = InputFile(
-                fake_file_out.getvalue(), file_mime="audio/mpeg",
-                file_name="bass boosted by @{bot}.mp3".format(bot=bot.username),
-            )
-            bot.bot.send_chat_action(chat_id, "upload_audio")
-            caption = ln.caption.format(bot=bot.username)
-            logger.debug("uploading new audio")
-            bot.bot.send_audio(
-                chat_id, file_out,
-                caption=caption, duration=audio.duration,
-                performer=audio.performer, title=audio.title,
-                disable_notification=False, reply_to_message_id=message_id
-            )
-            logger.debug("deleting status message")
-            bot.bot.delete_message(chat_id, progress.message_id)
-        except Exception as e:
-            logger.exception("Got Exeption instead of bass!")
-            bot.bot.edit_message_text(
-                ln.generic_error, chat_id, progress.message_id, disable_web_page_preview=True
-            )
-        # end try
-    # end def
-# end def
-
-

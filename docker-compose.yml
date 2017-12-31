@@ -13,6 +13,7 @@ services:
       RABBITMQ_HOST: # "rabbit"
       RABBITMQ_USER: # "rabbit"
       RABBITMQ_PASS: # "1234secure"
+      RABBITMQ_VHOST: # app01
       CELERY_WORKER: "no"
       HEALTHCHECK_URL: "/test"
 
@@ -30,6 +31,7 @@ services:
       RABBITMQ_HOST: # "rabbit"
       RABBITMQ_USER: # "rabbit"
       RABBITMQ_PASS: # "1234secure"
+      RABBITMQ_VHOST: # app01
       CELERY_WORKER: "yes"
       HEALTHCHECK_URL: "/test"
     command: "celery worker -A bass_boost.celery.worker --loglevel INFO"
@@ -47,6 +49,7 @@ services:
       RABBITMQ_HOST: # "rabbit"
       RABBITMQ_USER: # "rabbit"
       RABBITMQ_PASS: # "1234secure"
+      RABBITMQ_VHOST: # app01
       CELERY_WORKER: "yes"
       HEALTHCHECK_URL: "/test"
     command: "celery beat -A bass_boost.celery.worker --loglevel INFO"

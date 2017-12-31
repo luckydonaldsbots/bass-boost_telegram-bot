@@ -14,4 +14,5 @@ class Lang(object):
     progress6 = "extracting regions to boost"
     progress7 = "applying boosted bass to original track"
     generic_error = "An error occurred. Please retry when bug is fixed."
+    file_too_big = "The file provided is to big/long to process."
 # end class

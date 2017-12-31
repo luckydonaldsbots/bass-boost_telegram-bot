@@ -17,28 +17,28 @@ def boost(sample):
     assert isinstance(sample, AudioSegment)
 
     # get the raw audio
-    yield "loading audio"
+    yield 0
     track_raw = sample.get_array_of_samples()
 
     # as list
-    yield "parsing track"
+    yield 1
     track_raw = list(track_raw)
 
     # c-value
-    yield "calculating average bass boost needed"
+    yield 2
     est_mean = np.mean(track_raw)
 
     # a-value
-    yield "calculating bass boost"
+    yield 3
     est_std = 3.0 * np.std(track_raw) / (math.sqrt(2))
 
-    yield "calculating bigger bass boost"
+    yield 4
     bass_factor = int(round((est_std - est_mean) * 0.005))
 
-    yield "extracting regions to boost"
+    yield 5
     filtered = sample.low_pass_filter(bass_factor)
 
-    yield "applying boosted bass to original track"
+    yield 6
     combined = (sample - attenuate_db).overlay(filtered + accentuate_db)
     yield combined
 # end def

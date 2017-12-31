@@ -63,7 +63,7 @@ def url_healthcheck():
 
 @bot.command("start")
 def cmd_start(update, text):
-    return HTMLMessage(l(update.message.from_peer.language_code).help_message)
+    return HTMLMessage(l(update.message.from_peer.language_code).start_message)
 # end def
 
 
@@ -99,7 +99,7 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
     assert isinstance(bot.bot, Bot)
     ln = l(language_code)
     progress = bot.bot.send_message(
-        chat_id=chat_id, text="downloading audio", disable_web_page_preview=True,
+        chat_id=chat_id, text=ln.progress0, disable_web_page_preview=True,
         disable_notification=False, reply_to_message_id=message_id
     )
     file_in = bot.bot.get_file(file_id)
@@ -114,16 +114,16 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
     audio_in = AudioSegment.from_file(fake_file_in, format=audio_format)
     audio_out = None
     for step in boost(audio_in):
-        if isinstance(step, str):
+        if isinstance(step, int):
+            text = getattr(ln, "progress" + str(step+1))
             bot.bot.edit_message_text(
-                step, chat_id, progress.message_id, disable_web_page_preview=True
+                text, chat_id, progress.message_id, disable_web_page_preview=True
             )
-            bot.bot.send_chat_action(chat_id, "record_audio")
         # end if
         else:
             audio_out = step
-            break
         # end for
+        bot.bot.send_chat_action(chat_id, "record_audio")
     # end def
     bot.bot.send_chat_action(chat_id, "upload_audio")
     audio_out.export(fake_file_out, format="mp3", tags={"comment": "TEST°!!!", "title":"test title"})
@@ -138,88 +138,3 @@ def process_audio(audio, chat_id, message_id, file_id, language_code):
     )
     bot.bot.delete_message(chat_id, progress.message_id)
 # end def
-
-
-@app.route("/boobs/" + API_KEY + "/<path:url>")
-def bass_booooooost_bitches(tg_file_url):
-    url = "https://api.telegram.org/file/bot" + API_KEY + "/" + tg_file_url
-    r = requests.get(url, stream=True)
-    input = AudioSegment.from_file(r)
-
-    def stream():
-        for chunk in r.iter_content(chunk_size=1024):
-            yield chunk
-            # end for
-
-    # end def
-    from flask import Response
-    return Response(stream(), mimetype="image/jpg")
-# end def
-
-
-
-def format_user(peer):
-    assert isinstance(peer, User)
-    name = (str(peer.first_name) if peer.first_name else "" + " " + str(peer.last_name)).strip() if peer.last_name else ""
-    if name:
-        name = '<b>{name}</b> '.format(name=escape(name))
-    else:
-        name = ''
-    # end if
-    username = ('<a href="t.me/{username}">@{username}</a> '.format(username=str(peer.username).strip())) if peer.username else ""
-    return '{name}{username}(<a href="tg://user?id={id}">{id}</a>)'.format(name=name, username=username, id=peer.id)
-# end if
-
-
-def format_chat(message):
-    chat, msg_id = message.chat, message.message_id
-    assert isinstance(chat, Chat)
-    assert isinstance(bot.bot, Bot)
-    logger.info(repr(message))
-    if chat.title:
-        title = "<b>{title}</b>".format(title=escape(chat.title))
-    else:
-        title = "<i>{untitled_chat}</i>".format(untitled_chat=LangEN.untitled_chat)
-    # end if
-    if chat.username:
-        return '{title} <a href="t.me/{username}/{msg_id}">@{username}</a>'.format(
-            username=chat.username, msg_id=msg_id, title=title, chat_id=chat.id
-        )
-    # end if
-
-    # try getting an invite link.
-    invite_link = chat.invite_link
-    if chat.type in ("supergroup", "channel") and not invite_link:
-        try:
-            invite_link = bot.bot.export_chat_invite_link(chat.id)
-        except:
-            logger.exception("export_chat_invite_link Exception.")
-        # end try
-    try:
-        chat = bot.bot.get_chat(chat.id)
-        invite_link = chat.invite_link
-    except:
-        pass
-        # end if
-    if invite_link:
-        return '{title} (<a href="{invite_link}">{chat_id}</a>)'.format(
-            title=title, invite_link=invite_link, chat_id=chat.id
-        )
-    else:
-        return '{title} (<code>{chat_id}</code>)'.format(title=title, chat_id=chat.id)
-    # end if
-# end def
-
-
-@bot.on_message("new_chat_members")
-def on_join(update, message):
-    assert_type_or_raise(message.new_chat_members, list)
-    if bot.user_id not in [user.id for user in message.new_chat_members if isinstance(user, User)]:
-        # not we were added
-        return
-    # end if
-
-    return HTMLMessage(LangEN.join_message.format(bot=bot.username, chat_id=message.chat.id) + (LangEN.unstable_text if bot.username == "hey_admin_bot" else ""))
-#end def
-
-

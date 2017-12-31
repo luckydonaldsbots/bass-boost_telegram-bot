@@ -8,6 +8,7 @@ class Lang(LBase):
     help_message = start_message + "\n\nQuesto bot fa parte del network di bot @luckydonaldsbots.\n\nQUESTO BOT FA SCHIFO\nEHI!!! BELLOH!!! PERCHÈ LO STAI ANCORA USANDO?!?"
     caption = "@{bot} ha appena potenziato i tuoi bassi!"
     progress1 = "caricamento audio"
+    progress0 = progress1
     progress2 = "lettura traccia audio"
     progress3 = "calcolo del potenziamento medio necessario"
     progress4 = "calcolo del potenziamento necessario"

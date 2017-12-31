@@ -71,7 +71,7 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
                 logger.debug("Progress {step}: {text}".format(step=step, text=text))
                 try:
                     bot.edit_message_text(
-                        text, chat_id, progress_msg_idprogress_msg_id, disable_web_page_preview=True
+                        text, chat_id, progress_msg_id, disable_web_page_preview=True
                     )
                 except TgApiServerException:
                     logger.exception("Editing status message failed")

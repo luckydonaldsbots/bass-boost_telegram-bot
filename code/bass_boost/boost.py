@@ -17,28 +17,28 @@ def boost(sample):
     assert isinstance(sample, AudioSegment)
 
     # get the raw audio
-    yield 0
+    yield 1
     track_raw = sample.get_array_of_samples()
 
     # as list
-    yield 1
+    yield 2
     track_raw = list(track_raw)
 
     # c-value
-    yield 2
+    yield 3
     est_mean = np.mean(track_raw)
 
     # a-value
-    yield 3
+    yield 4
     est_std = 3.0 * np.std(track_raw) / (math.sqrt(2))
 
-    yield 4
+    yield 5
     bass_factor = int(round((est_std - est_mean) * 0.005))
 
-    yield 5
+    yield 6
     filtered = sample.low_pass_filter(bass_factor)
 
-    yield 6
+    yield 7
     combined = (sample - attenuate_db).overlay(filtered + accentuate_db)
     yield combined
 # end def

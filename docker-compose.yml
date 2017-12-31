@@ -10,4 +10,43 @@ services:
       SENTRY_DSN:
       URL_PATH:
       URL_HOSTNAME:
+      RABBITMQ_HOST: # "rabbit"
+      RABBITMQ_USER: # "rabbit"
+      RABBITMQ_PASS: # "1234secure"
+      CELERY_WORKER: "no"
       HEALTHCHECK_URL: "/test"
+
+
+  worker:
+    build:
+      context: ./
+      args:
+        FOLDER: ""
+    working_dir: /app/
+    restart: "unless-stopped"
+    environment:
+      TG_API_KEY:  # API key of the bot
+      SENTRY_DSN:
+      RABBITMQ_HOST: # "rabbit"
+      RABBITMQ_USER: # "rabbit"
+      RABBITMQ_PASS: # "1234secure"
+      CELERY_WORKER: "yes"
+      HEALTHCHECK_URL: "/test"
+    command: "celery worker -A bass_boost.celery.worker --loglevel INFO"
+
+  beat:
+    build:
+      context: ./
+      args:
+        FOLDER: ""
+    working_dir: /app/
+    restart: "unless-stopped"
+    environment:
+      TG_API_KEY:  # API key of the bot
+      SENTRY_DSN:
+      RABBITMQ_HOST: # "rabbit"
+      RABBITMQ_USER: # "rabbit"
+      RABBITMQ_PASS: # "1234secure"
+      CELERY_WORKER: "yes"
+      HEALTHCHECK_URL: "/test"
+    command: "celery beat -A bass_boost.celery.worker --loglevel INFO"

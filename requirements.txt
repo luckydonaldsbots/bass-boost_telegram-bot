@@ -10,3 +10,4 @@ flask
 requests
 pydub
 numpy
+celery

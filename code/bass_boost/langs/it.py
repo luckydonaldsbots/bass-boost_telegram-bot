@@ -15,3 +15,8 @@ class Lang(LBase):
     progress5 = "calcolo del potenziamento potenziato necessario"
     progress6 = "estrazione delle regioni da potenziare"
     progress7 = "applicazione dei bassi potenziati alla traccia originale"
+    capslock_number_1 = "UNO"
+    capslock_number_11 = "UNDICI"
+    capslock_number_111 = "CENTOEUNDICI"
+    generic_error = "C'è stato un errore. Riprova dopo che è stato corretto."
+    task_scheduled = "La tua traccia è stata aggiunta alla coda di potenziamento."

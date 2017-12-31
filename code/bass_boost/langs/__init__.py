@@ -4,12 +4,14 @@ from pytgbot.api_types.receivable.peer import User
 from pytgbot.api_types.receivable.updates import Message
 from luckydonaldUtils.exceptions import assert_type_or_raise
 
-from . import en, de
+from . import en, de, es, it
 from .en import Lang as DefaultLang
 LANG = {
     "default": DefaultLang,
     "en": en.Lang,
     "de": de.Lang,
+    "es": es.Lang,
+    "it": it.Lang,
 }
 
 

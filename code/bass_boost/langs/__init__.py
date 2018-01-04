@@ -13,6 +13,8 @@ LANG = {
     "es": es.Lang,
     "it": it.Lang,
     "ru": ru.Lang,
+    "en-US": en.Lang,
+    "de-DE": de.Lang,
 }
 
 

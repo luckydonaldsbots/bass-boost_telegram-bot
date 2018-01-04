@@ -10,13 +10,9 @@ from teleflask.messages import HTMLMessage
 
 from .langs import l
 from .secrets import API_KEY, URL_HOSTNAME, URL_PATH
-from .after_response import load_teardown_after_this_request
 from .celery.process_audio import process_audio
 from luckydonaldUtils.exceptions import assert_type_or_raise
 import re
-
-POSSIBLE_CHAT_TYPES = ("supergroup", "group", "channel")
-SEND_BACKOFF = 5
 
 __author__ = 'luckydonald'
 logger = logging.getLogger(__name__)
@@ -24,15 +20,12 @@ logging.add_colored_handler(level=logging.DEBUG)
 
 from teleflask import Teleflask
 app = Flask(__name__)
-app = load_teardown_after_this_request(app)
 
 # sentry = add_error_reporting(app)
 bot = Teleflask(API_KEY, hostname=URL_HOSTNAME, hostpath=URL_PATH, hookpath="/income/{API_KEY}")
 bot.init_app(app)
 
 assert_type_or_raise(bot.bot, Bot)
-AT_ADMIN_REGEX = re.compile(".*([^\\w]|^)@(admins?|{bot})(\\W|$).*".format(bot=bot.username))
-
 
 @app.errorhandler(404)
 def url_404(error):

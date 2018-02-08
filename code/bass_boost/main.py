@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-import requests
-from flask import Flask, url_for
-from luckydonaldUtils.logger import logging
+from flask import Flask, url_for, jsonify
 from pytgbot import Bot
 from pytgbot.api_types.receivable.media import Audio
 from pytgbot.api_types.receivable.peer import User
 from pytgbot.api_types.receivable.updates import Message
 from teleflask.messages import HTMLMessage
+from luckydonaldUtils.logger import logging
 
 from .langs import l
 from .secrets import API_KEY, URL_HOSTNAME, URL_PATH
@@ -41,8 +40,24 @@ def url_root():
 
 @app.route("/healthcheck")
 def url_healthcheck():
-    return '[ OK ]', 200
-    #return '[FAIL]', 500
+    """
+    Checks if telegram api works.
+    :return:
+    """
+    status = {}
+
+    try:
+        me = bot.bot.get_me()
+        assert isinstance(me, User)
+        logger.info(me)
+        status['telegram api'] = True
+    except Exception as e:
+        logger.exception("Telegram API failed.")
+        status['telegram api'] = False
+    # end try
+
+    success = all(x for x in status.values())
+    return jsonify(status), 200 if success else 500
 # end def
 
 

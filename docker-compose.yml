@@ -33,11 +33,10 @@ services:
       RABBITMQ_PASS: # "1234secure"
       RABBITMQ_VHOST: # app01
       CELERY_WORKER: "yes"
-      HEALTHCHECK_URL: "/test"
     command: "celery worker -A bass_boost.celery.worker --loglevel INFO"
-    #healthcheck:
-    #  test: ["CMD", "python", "healthcheck.py"]
-    #  # test: ["CMD", "celery", "inspect", "ping", "-A", "tasks.add", "-d", "celery@$HOSTNAME"]
+    healthcheck:
+      test: ["CMD", "python", "healthcheck.py"]
+      # test: ["CMD", "celery", "inspect", "ping", "-A", "tasks.add", "-d", "celery@$HOSTNAME"]
 
   beat:
     build:

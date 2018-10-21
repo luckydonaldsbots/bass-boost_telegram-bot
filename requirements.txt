@@ -3,8 +3,10 @@ uwsgi
 flask
 
 ## Bot ##
+pytgbot==3.6.0
 luckydonald-utils==0.61
-teleflask==1.0.0  # yeah, telegram!
+# teleflask==1.0.0  # yeah, telegram!
+-e git://github.com/luckydonald/teleflask.git@v2.0.0.dev13#egg=teleflask_dev13
 
 ## Diversa ##
 requests

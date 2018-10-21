@@ -3,6 +3,7 @@ uwsgi
 flask
 
 ## Bot ##
+luckydonald-utils==0.61
 teleflask==1.0.0  # yeah, telegram!
 
 ## Diversa ##

@@ -26,10 +26,8 @@ AUDIO_FORMATS = {
 
 
 @celery.task(ignore_result=True)
-def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language_code):
-    assert isinstance(audio, dict)
-    audio = Audio.from_array(audio)
-    assert isinstance(audio, Audio)
+def process_audio(api_key, chat_id, progress_msg_id, message_id, language_code,
+                  file_id, mime_type, duration, title=None, performer=None):
     bot = Bot(api_key)
     username = bot.get_me().username
     assert isinstance(bot, Bot)
@@ -43,8 +41,8 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
     ## end if
 
     try:
-        logger.debug("Mime is {mime}".format(mime=audio.mime_type))
-        if audio.mime_type not in AUDIO_FORMATS:
+        logger.debug("Mime is {mime}".format(mime=mime_type))
+        if mime_type not in AUDIO_FORMATS:
             logger.debug("Mime is wrong")
             bot.edit_message_text(
                 ln.format_unsupported, chat_id, progress_msg_id, disable_web_page_preview=True
@@ -52,15 +50,15 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
             return
         # end if
 
-        logger.debug("Downloading file: {id}".format(id=audio.file_id))
-        file_in = bot.get_file(audio.file_id)
+        logger.debug("Downloading file: {id}".format(id=file_id))
+        file_in = bot.get_file(file_id)
         url = bot.get_download_url(file_in)
         logger.debug("Downloading file: {url}".format(url=url))
         r = requests.get(url, stream=True)
         logger.debug("Downloaded file.")
         fake_file_in = BytesIO(r.content)
         fake_file_out = BytesIO()
-        audio_format = AUDIO_FORMATS[audio.mime_type]
+        audio_format = AUDIO_FORMATS[mime_type]
         logger.debug("Format is {format}".format(format=audio_format))
         audio_in = AudioSegment.from_file(fake_file_in, format=audio_format)
         audio_out = None
@@ -95,11 +93,11 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
             "encoder": "Horseapples 1.2 - {bot_link} (littlepip is best pony/)".format(bot_link=bot_link),
             "encoded_by": bot_link
         }
-        if audio.title:
-            tags["title"] = audio.title
+        if title:
+            tags["title"] = title
         # end if
-        if audio.performer:
-            tags["artist"] = audio.performer
+        if performer:
+            tags["artist"] = performer
         # end if
         audio_out.export(fake_file_out, format="mp3",tags=tags)
         file_out = InputFile(
@@ -111,8 +109,8 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
         logger.debug("uploading new audio")
         bot.send_audio(
             chat_id, file_out,
-            caption=caption, duration=audio.duration,
-            performer=audio.performer, title=audio.title,
+            caption=caption, duration=duration,
+            performer=performer, title=title,
             disable_notification=False, reply_to_message_id=message_id
         )
         logger.debug("deleting status message")

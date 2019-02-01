@@ -2,7 +2,7 @@
 from flask import Flask, jsonify
 from pytgbot import Bot
 from teleflask import Teleflask
-from pytgbot.api_types.receivable.media import Audio
+from pytgbot.api_types.receivable.media import Audio, Voice
 from pytgbot.api_types.receivable.peer import User
 from pytgbot.api_types.receivable.updates import Message
 from teleflask.messages import HTMLMessage
@@ -28,6 +28,7 @@ bot.init_app(app)
 bot.register_tblueprint(version_tbp)
 
 assert_type_or_raise(bot.bot, Bot)
+
 
 @app.errorhandler(404)
 def url_404(error):
@@ -64,7 +65,6 @@ def url_healthcheck():
 # end def
 
 
-
 @bot.command("start")
 def cmd_start(update, text):
     return HTMLMessage(l(update.message.from_peer.language_code).start_message)
@@ -79,8 +79,40 @@ def cmd_start(update, text):
 
 @bot.on_message("audio")
 def msg_audio(update, msg):
-    assert isinstance(msg, Message)
     assert isinstance(msg.audio, Audio)
+    audio = msg.audio
+    assert isinstance(audio, Audio)
+
+    return process_file(
+        msg=msg,
+        file_id=audio.file_id,
+        mime_type=audio.mime_type,
+        duration=audio.duration,
+        title=audio.title,
+        performer=audio.performer,
+    )
+# end def
+
+
+@bot.on_message("voice")
+def msg_audio(update, msg):
+    assert isinstance(msg.voice, Voice)
+    voice = msg.voice
+    assert isinstance(voice, Voice)
+
+    return process_file(
+        msg=msg,
+        file_id=voice.file_id,
+        mime_type=voice.mime_type,
+        duration=voice.duration,
+        title=None,
+        performer=None,
+    )
+# end def
+
+
+def process_file(msg, file_id, duration, mime_type, performer, title):
+    assert isinstance(msg, Message)
     assert isinstance(msg.from_peer, User)
     ln = l(msg.from_peer.language_code)
     progress = bot.bot.send_message(
@@ -92,7 +124,11 @@ def msg_audio(update, msg):
         progress_msg_id=progress.message_id,
         chat_id=msg.chat.id,
         message_id=msg.message_id,
-        audio=msg.audio.to_array(),
-        language_code=msg.from_peer.language_code
+        language_code=msg.from_peer.language_code,
+        file_id=file_id,
+        mime_type=mime_type,
+        duration=duration,
+        title=title,
+        performer=performer,
     )
 # end def

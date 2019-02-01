@@ -22,6 +22,7 @@ AUDIO_FORMATS = {
     "audio/mpeg3": "mp3",
     "audio/x-mpeg-3": "mp3",
     "audio/mpeg": "mp3",
+    "audio/ogg": "ogg",
 }
 
 

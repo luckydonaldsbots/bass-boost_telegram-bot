@@ -31,7 +31,7 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
     audio = Audio.from_array(audio)
     assert isinstance(audio, Audio)
     bot = Bot(api_key)
-    bot.username = bot.get_me().username
+    username = bot.get_me().username
     assert isinstance(bot, Bot)
     ln = l(language_code)
 
@@ -86,7 +86,7 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
         assert_type_or_raise(audio_out, AudioSegment)
         assert isinstance(audio_out, AudioSegment)
         bot.send_chat_action(chat_id, "upload_audio")
-        bot_link = "https://t.me/{bot}".format(bot=bot.username)
+        bot_link = "https://t.me/{bot}".format(bot=username)
         tags = {
             "composer": bot_link,
             "service_name": bot_link,
@@ -104,10 +104,10 @@ def process_audio(api_key, chat_id, progress_msg_id, audio, message_id, language
         audio_out.export(fake_file_out, format="mp3",tags=tags)
         file_out = InputFile(
             fake_file_out.getvalue(), file_mime="audio/mpeg",
-            file_name="bass boosted by @{bot}.mp3".format(bot=bot.username),
+            file_name="bass boosted by @{bot}.mp3".format(bot=username),
         )
         bot.send_chat_action(chat_id, "upload_audio")
-        caption = ln.caption.format(bot=bot.username)
+        caption = ln.caption.format(bot=username)
         logger.debug("uploading new audio")
         bot.send_audio(
             chat_id, file_out,

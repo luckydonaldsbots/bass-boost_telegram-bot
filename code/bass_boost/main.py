@@ -99,15 +99,49 @@ def msg_audio(update, msg):
     assert isinstance(msg.voice, Voice)
     voice = msg.voice
     assert isinstance(voice, Voice)
+    assert isinstance(msg, Message)
+
+    performer = None
+    if msg.forward_signature:
+        performer = msg.forward_signature
+    elif msg.forward_from_chat:
+        performer = chat_to_name(msg.forward_from_chat)
+    elif msg.forward_from:
+        performer = chat_to_name(msg.forward_from)
+    elif msg.author_signature:
+        performer = msg.forward_signature
+    elif msg.from_peer:
+        performer = chat_to_name(msg.from_peer)
+    # end if
 
     return process_file(
         msg=msg,
         file_id=voice.file_id,
         mime_type=voice.mime_type,
         duration=voice.duration,
-        title=None,
-        performer=None,
+        title=l(msg).boosted_voice,
+        performer=performer,
     )
+# end def
+
+
+def chat_to_name(c):
+    if c.username:
+        return f"https://t.me/{c.username}"
+    elif c.first_name:
+        if c.last_name:
+            return f"{c.first_name} {c.last_name}"
+        else:
+            return c.first_name
+        # end if
+    elif c.last_name:
+        return c.last_name
+    # end if
+    elif hasattr(c, 'title') and getattr(c, 'title', default=None):
+        return getattr(c, 'title')
+    else:
+        return c.id
+    # end if
 # end def
 
 

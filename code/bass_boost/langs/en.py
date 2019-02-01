@@ -18,5 +18,6 @@ class Lang(object):
     progress7 = "applying boosted bass to original track"
     generic_error = "An error occurred. Please retry after bug is fixed."
     task_scheduled = "Your track is now enqueued for bass boosting."
+    boosted_voice = "Bass Boosted Voice Recording"
     # file_too_long = "The file provided is to long to process."
 # end class

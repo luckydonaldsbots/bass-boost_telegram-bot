@@ -7,7 +7,7 @@ from luckydonaldUtils.logger import logging
 from pydub import AudioSegment
 from pytgbot.bot import Bot
 from pytgbot.api_types.receivable.media import Audio
-from pytgbot.api_types.sendable.files import InputFile
+from pytgbot.api_types.sendable.files import InputFileFromBlob
 from pytgbot.exceptions import TgApiServerException
 
 from . import celery
@@ -22,7 +22,7 @@ AUDIO_FORMATS = {
     "audio/mpeg3": "mp3",
     "audio/x-mpeg-3": "mp3",
     "audio/mpeg": "mp3",
-    "audio/ogg": "ogg",
+    "audio/ogg": "oga",
 }
 
 
@@ -101,8 +101,8 @@ def process_audio(api_key, chat_id, progress_msg_id, message_id, language_code,
             tags["artist"] = performer
         # end if
         audio_out.export(fake_file_out, format="mp3",tags=tags)
-        file_out = InputFile(
-            fake_file_out.getvalue(), file_mime="audio/mpeg",
+        file_out = InputFileFromBlob(
+            file_blob=fake_file_out.getvalue(), file_mime="audio/mpeg",
             file_name="bass boosted by @{bot}.mp3".format(bot=username),
         )
         bot.send_chat_action(chat_id, "upload_audio")

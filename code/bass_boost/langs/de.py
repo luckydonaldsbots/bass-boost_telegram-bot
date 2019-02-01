@@ -20,4 +20,5 @@ class Lang(LBase):
     progress7 = "Wende den besseren Bass auf die Orginalspur an"
     generic_error = "Ein Fehler trat auf. Bitte versuche es erneut, sobald dieser behoben ist."
     task_scheduled = "Deine Datei wurde zur Bassverstärkung eingereiht."
+    boosted_voice = "Bassverstärkte Sprachaufnahme"
 # end class

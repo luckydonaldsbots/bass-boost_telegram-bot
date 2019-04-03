@@ -6,7 +6,7 @@ flask
 # pytgbot==3.6.0
 -e git://github.com/luckydonald/pytgbot.git@bd4043631c9737cb82f5d0aa9a367e0f9d1c7fb1#egg=pytgbot_bd4043  # 2018-11-24 after 4.0.2, adds fixed InputFile.size
 
-luckydonald-utils==0.61
+luckydonald-utils==0.72
 
 # teleflask==1.0.0  # yeah, telegram!
 -e git://github.com/luckydonald/teleflask.git@v2.0.0.dev20#egg=teleflask_dev20
@@ -33,7 +33,7 @@ celery
 # itsdangerous==0.24
 # Jinja2==2.10
 # kombu==4.2.1
-# luckydonald-utils==0.61
+# luckydonald-utils==0.72
 # MarkupSafe==1.0
 # numpy==1.15.2
 # pydub==0.23.0

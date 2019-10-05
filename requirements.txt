@@ -42,7 +42,7 @@ python-magic==0.4.13
 pytz==2018.5
 requests==2.18.4
 -e git://github.com/luckydonald/teleflask.git@d4217f1777db5d92a6ad7c97bc91ab96e9507301#egg=teleflask
-urllib3==1.22
+urllib3==1.24.2
 uWSGI==2.0.15
 -e git://github.com/luckydonald-forks/uwsgi-tools.git@7abbfa7058649942aa8a5472bcf09c4f762a2090#egg=uwsgi_tools
 vine==1.1.4

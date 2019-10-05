@@ -46,4 +46,4 @@ urllib3==1.22
 uWSGI==2.0.15
 -e git://github.com/luckydonald-forks/uwsgi-tools.git@7abbfa7058649942aa8a5472bcf09c4f762a2090#egg=uwsgi_tools
 vine==1.1.4
-Werkzeug==0.12.2
+Werkzeug==0.15.3

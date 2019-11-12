@@ -40,7 +40,7 @@ pydub==0.23.0
 pytgbot==3.6.0
 python-magic==0.4.13
 pytz==2018.5
-requests==2.18.4
+requests==2.20.0
 -e git://github.com/luckydonald/teleflask.git@d4217f1777db5d92a6ad7c97bc91ab96e9507301#egg=teleflask
 urllib3==1.22
 uWSGI==2.0.15

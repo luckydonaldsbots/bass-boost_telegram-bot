@@ -14,7 +14,6 @@ from .langs import l
 from .secrets import API_KEY, URL_HOSTNAME, URL_PATH
 from .celery.process_audio import process_audio
 
-
 __author__ = 'luckydonald'
 logger = logging.getLogger(__name__)
 logging.add_colored_handler(level=logging.DEBUG)
@@ -36,7 +35,7 @@ def url_404(error):
 # end def
 
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/", methods=["GET", "POST"])
 def url_root():
     return "Yep."
 # end def

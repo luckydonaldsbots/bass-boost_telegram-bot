@@ -35,7 +35,7 @@ Jinja2==2.10
 kombu==4.2.1
 luckydonald-utils==0.72
 MarkupSafe==1.0
-numpy==1.15.2
+numpy==1.22.0
 pydub==0.23.0
 pytgbot==3.6.0
 python-magic==0.4.13
